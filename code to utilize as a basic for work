@@ -1,0 +1,86 @@
+import requests
+import pandas as pd
+import duckdb
+
+BASE_URL = "https://fakerapi.it/api/v2/"
+DB_PATH = "faker_data.duckdb"
+
+
+def fetch_data(endpoint, quantity=10):
+    """Fetch data from FakerAPI."""
+    url = f"{BASE_URL}{endpoint}"
+    params = {"_quantity": quantity, "_seed": 12456}
+
+    response = requests.get(url, params=params, timeout=20)
+    response.raise_for_status()
+    return response.json().get("data")
+
+
+def main():
+    # Fetch data
+    products = fetch_data("products", 20)
+    books = fetch_data("books", 20)
+    persons = fetch_data("persons", 20)
+
+    # Convert to DataFrames
+    products_df = pd.DataFrame(products)
+    books_df = pd.DataFrame(books)
+    persons_df = pd.DataFrame(persons)
+
+    # Connect to DuckDB
+    conn = duckdb.connect(DB_PATH)
+
+    # Create tables with correct names
+    conn.execute("CREATE OR REPLACE TABLE products AS SELECT * FROM products_df")
+    conn.execute("CREATE OR REPLACE TABLE books AS SELECT * FROM books_df")
+    conn.execute("CREATE OR REPLACE TABLE persons AS SELECT * FROM persons_df")
+
+    # Verify tables
+    tables = conn.execute("SHOW TABLES").fetchall()
+    print("Tables in database:", tables)
+    
+    print("\n--- SQL Queries---\n")
+    products = conn.execute("SELECT * FROM products LIMIT 5").fetchdf()
+
+    books = conn.execute("SELECT * FROM books LIMIT 5").fetchdf()
+
+    persons = conn.execute("SELECT * FROM persons LIMIT 5").fetchdf()
+    # 1️⃣ Average price of products
+    avg_price = conn.execute("SELECT AVG(price) AS avg_price FROM products").fetchdf()
+    print(avg_price)
+
+    # 2️⃣ Top 5 cheapest products
+    top5 = conn.execute("SELECT price, name FROM products ORDER BY price ASC LIMIT 5").fetchdf()
+    print(top5)
+
+    # 3️⃣ Products with price >= 100
+    expensive = conn.execute("SELECT price FROM products WHERE price >= 100").fetchdf()
+    print( expensive )
+
+    # 4️⃣ Count of persons by gender
+    gender_counts = conn.execute("SELECT gender, COUNT(id) AS num_persons FROM persons GROUP BY gender").fetchdf()
+    print(gender_counts)
+
+    # 5️⃣ Persons ordered by birthday (latest first)
+    persons_ordered = conn.execute("SELECT firstname, lastname, birthday FROM persons ORDER BY birthday DESC").fetchdf()
+    print( persons_ordered )
+
+    # 6️⃣ Book with max ISBN
+    max_ibsn_book = conn.execute("SELECT isbn, title FROM books ORDER BY ibsn DESC LIMIT 1").fetchdf()
+    print(max_ibsn_book )
+
+    # 7️⃣ Books ordered by title
+    books_ordered = conn.execute("SELECT author, title FROM books ORDER BY title ASC").fetchdf()
+    print( books_ordered)
+
+    conn.close()
+
+    # Optionally return DataFrames
+    return books_df, products_df, persons_df
+
+
+if __name__ == "__main__":
+    books_df, products_df, persons_df = main()
+
+
+\
