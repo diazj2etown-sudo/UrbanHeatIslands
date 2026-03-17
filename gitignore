@@ -1,1 +1,12 @@
+
+Data Question  
+
+How do marginalized communities, specifically communities of color, experience weather anomalies in their geographical communities? Specifically, how much greater anomalies on heat islands when compared to county averages? 
+
+Minimum Viable Product 
+
+I intend to use an API and a virtual environment to import datasets to Python to use NOAA and census datasets. These datasets will be cleaned into new dataframes in 2NF using Pandas. ProgresSQL tables will be made to compare tables through queries if needed.  Visualization will consist of comparison between Lebanon and Hershey, such as peak and average temperature, wind speeds, evaporation, and precipitation through line graphs, bar graphs, tables through matplotlib, geopandas, and metabase. It will be summarized in a dashboard using metabase. 
+
+Resources for project help:
+https://geopandas.org/en/stable/docs/user_guide/mapping.html#choropleth-maps 
 API NOAA and Census Data
