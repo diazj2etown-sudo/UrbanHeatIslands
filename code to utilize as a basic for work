@@ -83,4 +83,33 @@ if __name__ == "__main__":
     books_df, products_df, persons_df = main()
 
 
-\
+def fetch_site_weather(start_date='2020-01-01', end_date='2024-12-31'):
+    """Fetch daily weather for all launch sites from the Open-Meteo archive API."""
+    url = 'https://archive-api.open-meteo.com/v1/archive'
+    response_data = []
+    for site in LAUNCH_SITES:
+        params = {
+            "latitude": LAUNCH_SITES[site][0],
+            "longitude": LAUNCH_SITES[site][1],
+            "start_date": start_date,
+            "end_date": end_date,
+            "daily": "weather_code"
+        }
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        daily = response.json()['daily']
+
+        daily_data = {
+            "date": daily["time"],
+            "weather_code": daily["weather_code"],
+            "site": site
+        }
+
+        response_data.append(pd.DataFrame(daily_data))
+
+    return response_data
+
+
+weather_data = fetch_site_weather()
+site_weather = pd.concat(weather_data, ignore_index=True)
+site_weather.head(15)
