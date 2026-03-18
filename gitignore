@@ -10,3 +10,6 @@ I intend to use an API and a virtual environment to import datasets to Python to
 Resources for project help:
 https://geopandas.org/en/stable/docs/user_guide/mapping.html#choropleth-maps 
 API NOAA and Census Data
+https://open-meteo.com/
+https://www.census.gov/data/developers/data-sets/acs-1year.html
+https://www.weather.gov/documentation/services-web-api
