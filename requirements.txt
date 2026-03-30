@@ -1,0 +1,11 @@
+pip install pandas
+pip install request
+pip install sqlalchemy
+pip install notebook
+pip install request_cache
+pip install geopandas
+pip install matplotlib
+pip install openmeteo_requests
+pip install requests_cache
+pip install retry_requests
+pip install numpy
