@@ -4,38 +4,32 @@
 -- Run each step one at a time (Ctrl+Enter on the current statement)
 
 -- ============================================================
--- Step 1: Verify your tables loaded correctly
+-- Verify your tables loaded correctly
 -- ============================================================
 SELECT COUNT(*) AS "STATION" FROM harrisburgclimate;
 SELECT COUNT(*) FROM lebanonclimate;
 SELECT COUNT(*) FROM census2000;
-SELECT COUNT(*) AS "Label (Grouping)" FROM census2010;
-SELECT COUNT(*) AS "Label (Grouping)" FROM census2020;
+
 
 -- ============================================================
--- Step 2: Preview each table
+-- Preview each table
 -- ============================================================
 SELECT * FROM harrisburgclimate LIMIT 5;
 SELECT * FROM lebanonclimate LIMIT 5;
-SELECT * FROM census2010  LIMIT 5;
-
-
+SELECT * FROM census2010;
+SELECT * FROM census2020;
+SELECT * FROM census2000;
 -- ============================================================
--- Step 3: Normalize launch_events
+-- Analytics Questions
 -- ============================================================
--- Break the flat launch_events table into three tables:
---   dim_agency    (agency_id, agency_name, country, agency_type)
---   dim_site      (site_id, site_name, country)
---   fact_launches (launch_id, mission_name, launch_date, site_id,
---                  agency_id, rocket_type, destination, mission_type,
---                  outcome, payload_kg, crew_size)
+
 
 
 
 
 
 -- ============================================================
--- Step 4: Your Analytics Questions
+-- Analytics Questions
 -- ============================================================
 -- Now that your data is normalized, write at least THREE queries
 -- that answer interesting questions about space launches and
@@ -48,54 +42,70 @@ SELECT * FROM census2010  LIMIT 5;
 --
 -- Questions to cover to address main questions
 --
---   Past averages in temperatures compared to new maximum temperature?
---   How much greater anomalies on heat islands when compared to county averages?
+--   Averages in temperatures compared to maximum temperature, finding anomalies for each city?
 --   Which city has higher temperatures on average?
---   Which city has higher amounts of communities of color on average?
---   how are maximum temperatures changing over time
+--   Which city has higher amounts of communities of color, does this change over time?
 -- ============================================================
 
 
 
 -- Analytics Query 1
 -- Question: Averages in temperatures compared to maximum temperature, finding anomalies for each city?
+Create Table Anomalies AS
+SELECT Max(h."MLY-TMIN-NORMAL") - Avg(h."MLY-TMIN-NORMAL") as Harrisburg, Max(lebanonclimate."MLY-TMIN-NORMAL") - Avg(lebanonclimate."MLY-TMIN-NORMAL") as Lebanon
+FROM harrisburgclimate, lebanonclimate
+JOIN harrisburgclimate h on lebanonclimate.day = h.day;
+SELECT * FROM Anomalies;
 
-SELECT agency,
-    COUNT(outcome) AS successcount
-FROM launch_events
-GROUP BY agency
-ORDER BY successcount DESC;
 
 -- Analytics Query 2
--- Question: How much greater anomalies on heat islands when compared to county averages?
-
-SELECT destination,
-    COUNT(launch_id) AS launchcount
-FROM launch_events
-GROUP BY destination
-ORDER BY launchcount DESC;
-
--- Analytics Query 3
 -- Question: Which city has higher temperatures on average?
 -- YOUR CODE HERE
-SELECT avg(payload_kg) AS payload,
-    case
-    when crew_size = 0 then 'robotic'
-    when crew_size > 0 then 'crewed'
-end as crew_mission
-FROM launch_events
-GROUP BY crew_mission
-ORDER BY payload DESC;
-
-
--- Analytics Query 4
--- Question: Which city has higher amounts of communities of color on average?
+Create TABLE Hightempcomp AS
+SELECT Max(h."MLY-TMIN-NORMAL") as maxharrisburg,
+Max(lebanonclimate."MLY-TMIN-NORMAL") as maxlebanon
+FROM harrisburgclimate, lebanonclimate
+JOIN harrisburgclimate h on lebanonclimate.day = h.day;
+SELECT * FROM Hightempcomp;
+-- Analytics Query 3
+-- Question: Which city has higher amounts of communities of color?
 -- YOUR CODE HERE
-SELECT destination, avg(payload_kg) AS payload,
-    case
-    when crew_size = 0 then 'robotic'
-    when crew_size > 0 then 'crewed'
-end as crew_mission
-FROM launch_events
-GROUP BY crew_mission, destination
-ORDER BY payload DESC;
+CREATE TABLE CommunityofColor2000 AS
+SELECT
+    C."Black", C."Native", C."Asian", C."PacificIslander", C."Other", C."Mixed", (C."Black" + C."Asian" + C."Mixed" + C."Other" + C."Native" + C."PacificIslander") AS total
+FROM Census2000 C;
+SELECT * FROM CommunityofColor2000;
+CREATE TABLE CommunityofColor2010 AS
+SELECT
+    C."Black", C."Native", C."Asian", C."PacificIslander", C."Other", C."Mixed", (C."Black" + C."Asian" + C."Mixed" + C."Other" + C."Native" + C."PacificIslander") AS total
+FROM Census2010 C;
+SELECT * FROM CommunityofColor2010;
+
+CREATE TABLE CommunityofColornow AS
+SELECT
+    C."Black", C."Native", C."Asian", C."PacificIslander", C."Other", C."Mixed", (C."Black" + C."Asian" + C."Mixed" + C."Other" + C."Native" + C."PacificIslander") AS total
+FROM Census2020 C;
+SELECT * FROM CommunityofColorNow;
+
+-- does this change over time?
+CREATE TABLE CommunityChange AS
+WITH T2020 AS (
+    SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) as rn
+    FROM Census2020
+),
+T2000 AS (
+    SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) as rn
+    FROM public.communityofcolor2000
+)
+SELECT
+    (T2020."Black" - T2000."Black") AS NewBlackpop,
+    (T2020."Native" - T2000."Native") AS NewNativepop,
+    (T2020."Asian" - T2000."Asian") AS NewAsianpop,
+    (T2020."PacificIslander" - T2000."PacificIslander") AS NewPacificIslanders,
+    (T2020."Other" - T2000."Other") AS NewOtherRaces,
+    (T2020."Mixed" - T2000."Mixed") AS NewMixedRace
+FROM T2020
+JOIN T2000 ON T2020.rn = T2000.rn;
+
+
+SELECT * FROM CommunityChange
