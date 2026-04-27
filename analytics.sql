@@ -22,7 +22,9 @@ SELECT * FROM census2000;
 -- ============================================================
 -- Analytics Questions
 -- ============================================================
-
+SELECT *
+FROM census2020
+PIVOT
 
 
 
@@ -88,7 +90,7 @@ FROM Census2020 C;
 SELECT * FROM CommunityofColorNow;
 
 -- does this change over time?
-CREATE TABLE CommunityChange AS
+CREATE TABLE CommunityChangeovertime AS
 WITH T2020 AS (
     SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) as rn
     FROM Census2020
@@ -103,9 +105,11 @@ SELECT
     (T2020."Asian" - T2000."Asian") AS NewAsianpop,
     (T2020."PacificIslander" - T2000."PacificIslander") AS NewPacificIslanders,
     (T2020."Other" - T2000."Other") AS NewOtherRaces,
-    (T2020."Mixed" - T2000."Mixed") AS NewMixedRace
+    (T2020."Mixed" - T2000."Mixed") AS NewMixedRace,
+    (T2020."Black" + T2020."Asian" + T2020."Mixed" + T2020."Other" + T2020."Native" + T2020."PacificIslander") AS total2020,
+    (T2000."Black" + T2000."Asian" + T2000."Mixed" + T2000."Other" + T2000."Native" + T2000."PacificIslander") AS total2000
 FROM T2020
 JOIN T2000 ON T2020.rn = T2000.rn;
 
 
-SELECT * FROM CommunityChange
+SELECT * FROM CommunityChangein20years
