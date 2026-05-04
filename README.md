@@ -12,6 +12,9 @@ Data Question
 
 How do marginalized communities, specifically communities of color, experience weather anomalies in their geographical communities? Specifically, how much greater anomalies on heat islands when compared to county averages?  
 
+Output
+Graphs of precipipation data and temperature min, max, and means by month for 2025 with composition of communities of color for 2020
+
 References  
 
 Li, D., & Bou-Zeid, E. (2013). Synergistic interactions between urban heat islands and heat waves: The impact in cities is larger than the sum of its parts. Journal of Applied Meteorology and Climatology, 52(9), 2051–2064. https://doi.org/10.1175/jamc-d-13-02.1 [1] 
