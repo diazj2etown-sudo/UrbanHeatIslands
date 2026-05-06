@@ -13,7 +13,16 @@ Data Question
 How do marginalized communities, specifically communities of color, experience weather anomalies in their geographical communities? Specifically, how much greater anomalies on heat islands when compared to county averages?  
 
 Output
-Graphs of precipipation data and temperature min, max, and means by month for 2025 with composition of communities of color for 2020. Metabase displays climate graphs with presentation covering all graphs created. Capstone is were census graphs were created. 
+The repository produces the following outputs:
+Monthly graphs of:
+Precipitation: rainfall and snowfall
+Minimum temperature
+Maximum temperature
+Mean temperature
+(for the year 2022)
+Demographic visualizations showing the composition of communities of color using 2020 Census data
+Interactive climate dashboards displayed in Metabase
+A capstone analysis integrating climate and census visualizations
 
 References  
 
